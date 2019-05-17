@@ -1,4 +1,5 @@
 library(dplyr)
+library(plyr)
 rm(list=ls())
 
 # Import the datasets
@@ -26,14 +27,6 @@ df8 = change_col_name(df8,"Value","foreign_non_eu")
 df9 = change_col_name(df9,"Value","population")
 df10 = change_col_name(df10,"Value","household")
 df11 = change_col_name(df11,"Value","cost_pt")
-
-"""
-df_list = c(df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11)
-for (df in df_list){
-  #df = df[,-c(3)]
-  return(df)
-}
-"""
 
 df1 = df1[,-c(3)]
 df2 = df2[,-c(3)]
@@ -74,8 +67,67 @@ df_joined = join_data(df_joined, df9)
 df_joined = join_data(df_joined, df10)
 df_joined = join_data(df_joined, df11)
 
+# Replace ":" with NA
+df_joined[df_joined==":"]<-NA
+
+"""""
+cols = colnames(df_joined)
+
+for (i in cols){
+  i1 = as.name(i)
+  #print(i1)
+  print(sum(is.na(df_joined$i1)))
+  #is.na(df_joined$TIME)
+} 
+"""""
+
+sum(is.na(df_joined$TIME))
+sum(is.na(df_joined$CITIES))
+sum(is.na(df_joined$beds_1000))
+sum(is.na(df_joined$beds_tourist))
+sum(is.na(df_joined$tot_companies))
+sum(is.na(df_joined$museum_vis))
+sum(is.na(df_joined$employed_tot))
+sum(is.na(df_joined$foreign_born))
+sum(is.na(df_joined$foreign_eu))
+sum(is.na(df_joined$foreign_non_eu))
+sum(is.na(df_joined$population))
+sum(is.na(df_joined$cost_pt))
+
+## Get house price data
+df2007 = get_data("Data/house_pricing/Rent2007clean.csv", sep = ";")
+df2007 = df2007[df2007$Currency %in% c('EUR'), ]
+df2007 = df2007[,-c(1)]
+df2007$TIME = 2007
+colnames(df2007)[which(names(df2007) == "City")] <- "CITIES"
+#df2007$City = toupper(df2007$City)
+
+unique(df_joined$CITIES)
+unique(df2007$CITIES)
+unique(df2007$CITIES) %in% unique(df_joined$CITIES)
+
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Bruxelles / Brussel"="Brussels"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Wien"="Vienna"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Praha"="Prague"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Helsinki / Helsingfors"="Helsinki"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("K<f8>benhavn "="Copenhagen"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("M<fc>nchen "="Munich"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Athina"="Athens"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Roma"="Rome"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Greater 's-Gravenhage"="The Hague"))
+df2007$CITIES <- revalue(df2007$CITIES, c("The  Hague"="The Hague"))
+#df2007$CITIES <- revalue(df2007$CITIES, c("Copenhagen"="K<f8>benhavn"))
+#df2007$CITIES <- revalue(df2007$CITIES, c("Munich"="M<fc>nchen"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Warszawa"="Warsaw"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Lisboa"="Lisbon"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Bucuresti"="Bucharest"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("City of London"="London"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Genova"="Geneva"))
+df_joined$CITIES <- revalue(df_joined$CITIES, c("Valletta"="Valetta"))
+
 # get the subset of selected cities
 df_joined = select_cities(df_joined)
+df2007 = select_cities(df2007)
 
-sum(df_joined
-
+# Merge prices which features
+df_all = join_data(df2007, df_joined)
