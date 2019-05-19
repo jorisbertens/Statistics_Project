@@ -6,9 +6,13 @@ library(reshape2)
 # load the data
 get_data_csv<-function(data, sep=","){
   df <- read.csv(data, header = TRUE, sep)
-  df = select(df, geo.time, X2013, X2014, X2015, X2016, X2017)
+  df = select(df, geo.time, X2009, X2010, X2011, X2012, X2013, X2014, X2015, X2016, X2017)
   df = melt(df,id =c("geo.time"))
   return(df)
+}
+
+get_full_data<-function(data, sep=","){
+  df <- read.csv(data, header = TRUE, sep)
 }
 
 get_data_xls<-function(data, sep=","){
@@ -98,6 +102,8 @@ clean_data<-function(){
   df_join = df_join[!(df_join$geo.time=="Source of Data:"),]
   return(df_join)
 }
+
+df = clean_data()
 
 
 

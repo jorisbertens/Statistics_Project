@@ -45,8 +45,24 @@ df10 = df10 %>% distinct(geo.time, variable, .keep_all = TRUE)
 df11 = df11 %>% distinct(geo.time, variable, .keep_all = TRUE)
 df12 = df12 %>% distinct(geo.time, variable, .keep_all = TRUE)
 
+
+#Select specific year
+#df1 = df1[(df1$variable=="X2016"),]
+#df2 = df2[(df2$variable=="X2016"),]
+#df3 = df3[(df3$variable=="X2016"),]
+#df4 = df4[(df4$variable=="X2016"),]
+#df5 = df5[(df5$variable=="X2016"),]
+#df6 = df6[(df6$variable=="X2016"),]
+#df7 = df7[(df7$variable=="X2016"),]
+#df8 = df8[(df8$variable=="X2016"),]
+#df9 = df9[(df9$variable=="X2016"),]
+#df10 = df10[(df10$variable=="X2016"),]
+#df11 = df11[(df11$variable=="X2016"),]
+#df12 = df12[(df12$variable=="X2016"),]
+
 # Merge all the data
 df_join = join_data(df1, df2)
+#df_join = join_data(df2, df3)
 df_join = join_data(df_join, df3)
 df_join = join_data(df_join, df4)
 df_join = join_data(df_join, df5)
@@ -86,3 +102,5 @@ sum(is.na(df_join$risk_poverty))
 sum(is.na(df_join$tertiary_education))
 sum(is.na(df_join$tourism_bed_places))
 sum(is.na(df_join$unemployment_rate))
+
+df_join17 = df[(df$variable=="X2017"),]
