@@ -54,6 +54,10 @@ df9 = df9 %>% distinct(TIME, CITIES, .keep_all = TRUE)
 df10 = df10 %>% distinct(TIME, CITIES, .keep_all = TRUE)
 df11 = df11 %>% distinct(TIME, CITIES, .keep_all = TRUE)
 
+join_data<-function(df1,df2){
+  df_new <- merge(df1,df2,by.x = c("TIME","CITIES"),by.y = c("TIME","CITIES"))
+  return(df_new)
+}
 
 # Join the datasets
 df_joined = join_data(df1,df2)
@@ -67,6 +71,7 @@ df_joined = join_data(df_joined, df9)
 df_joined = join_data(df_joined, df10)
 df_joined = join_data(df_joined, df11)
 
+df_joined = df_joined[(df_joined$TIME=="2015"),]
 # Replace ":" with NA
 df_joined[df_joined==":"]<-NA
 
@@ -94,6 +99,7 @@ sum(is.na(df_joined$foreign_non_eu))
 sum(is.na(df_joined$population))
 sum(is.na(df_joined$cost_pt))
 
+df = df_joined[complete.cases(df_joined), ]
 ## Get house price data
 df2007 = get_data("Data/house_pricing/Rent2007clean.csv", sep = ";")
 df2007 = df2007[df2007$Currency %in% c('EUR'), ]

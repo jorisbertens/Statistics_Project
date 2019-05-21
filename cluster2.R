@@ -4,7 +4,13 @@ library(FactoMineR)
 library(factoextra)
 library(corrplot)
 library(cluster)
+library(gdata)
+library(dplyr)
+library(reshape2)
 
+get_full_data<-function(data, sep=","){
+  df <- read.csv(data, header = TRUE, sep)
+}
 
 df = get_full_data("Data/full_dataset.csv")
 df = df[(df$variable=="X2017"),]
@@ -21,10 +27,11 @@ fviz_nbclust(df2, hcut, method = "wss") +
 fviz_nbclust(df2, hcut, method = "silhouette")+
   labs(subtitle = "Silhouette method")
 
+## Impute by mean
+for(i in 1:ncol(df2)){
+  df2[is.na(df2[,i]), i] <- mean(df2[,i], na.rm = TRUE)
+}
 
-## KNN imputation
-knn.impute(df2, k = 4, cat.var = 1:ncol(df2), to.impute = 1:nrow(df2),
-           using = 1:nrow(df2))
 # Gap statistic
 # nboot = 50 to keep the function speedy. 
 # recommended value: nboot= 500 for your analysis.
@@ -44,6 +51,9 @@ plot(fit_ward)
 rect.hclust(fit_ward, k=3, border="red")
 groups_ward <- cutree(fit_ward, k=3)
 
-df$geo.time<-groups_ward
+df$groups_ward<-groups_ward
 
 table(df$geo.time,df$groups_ward)
+
+plot(fit_ward, labels=df$geo.time)
+rect.hclust(fit_ward, k=3, border="red")
