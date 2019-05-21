@@ -11,14 +11,15 @@ get_full_data<-function(data, sep=","){
   df <- read.csv(data, header = TRUE, sep)
 }
 
-df = get_full_data("Data/full_dataset.csv")
-df = df[(df$variable=="X2017"),]
+df = get_full_data("Data/unemployment_analysis.csv")
+#df = df[(df$variable=="X2017"),]
 
 # get rid of unnecessary stuff
-df2 = df %>% select(4:15)
+df2 = df %>% select(3:33)
 
+sapply(df, class)
 # get rid of the target variable for to prepare the PCA of the feature variables
-df_features = df2[-8]
+df_features = df2[-31]
 
 PCA(df_features, scale.unit = TRUE, ncp = 5, graph = TRUE)
 

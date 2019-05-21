@@ -16,8 +16,7 @@ join_data<-function(df1,df2){
 
 df_join = join_data(df1,df2)
 
-# delete a lot of columns
-
+# delete first columns
 df_join= df_join[-2]
 df_join= df_join[-2]
 df_join= df_join[-2]
@@ -26,6 +25,16 @@ df_join= df_join[-2]
 df_join= df_join[-2]
 df_join= df_join[-2]
 
+# delete columns that include "Chang"
 df_try = df_join[, -grep("Chang", colnames(df_join))]
 
-colnames(df_try)
+# manually selected columns
+cols = c(1, 4 ,6:11, 18, 19, 25, 48, 56, 57, 58, 66, 71, 77, 89, 95, 107, 109, 119, 128, 162, 157, 165, 169, 88, 55, 35, 23)
+df_try = df_try[,cols]
+
+# change - to NA
+df_try[df_try=="-"]<-NA
+df_try[df_try=="N/A"]<-NA
+
+# download df
+write.csv(df_try, file = "Data/unemployment_analysis.csv")

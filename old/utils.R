@@ -15,6 +15,10 @@ get_full_data<-function(data, sep=","){
   df <- read.csv(data, header = TRUE, sep)
 }
 
+get_data<-function(data, sep=","){
+  df <- read.csv(data, header = TRUE, sep)
+}
+
 get_data_xls<-function(data, sep=","){
   df <- read.table(data, header = TRUE, sep)
   return(df)
