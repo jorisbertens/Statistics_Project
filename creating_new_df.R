@@ -32,12 +32,12 @@ df_try = df_join[, -grep("Chang", colnames(df_join))]
 cols = c(1, 4 ,6:11, 18, 19, 25, 48, 56, 57, 58, 66, 71, 77, 89, 95, 107, 109, 119, 128, 162, 157, 165, 169, 88, 55, 35, 23)
 df_try = df_try[,cols]
 
-# change - to NA
-df_try[df_try=="-"]<-NA
-df_try[df_try=="N/A"]<-NA
+library(tidyr)
+library(naniar)
+library(dplyr)
+library(tidyverse)
 
-# download df
-#write.csv(df_try, file = "Data/unemployment_analysis.csv")
+
 
 library(Hmisc)
 di <- describe(df_try)
@@ -86,3 +86,17 @@ df_try$Criminal.Justice <- as.numeric(df_try$Criminal.Justice)
 df_try$Unemployment.... <- as.numeric(df_try$Unemployment....)
 
 sapply(df_try, class)
+
+
+# change - to NA
+#df_try <- df_try[df_try == "-"] <- NA
+
+# Missing values
+
+miss = df_try[!complete.cases(df_try), ]
+is.na(df_try[1,30])
+
+#install.packages("mice")
+library(mice)
+
+df_try[is.na(df_try)] <- mice(df_try, m=5, maxit = 50, method = 'pmm', seed = 500)
