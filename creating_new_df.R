@@ -89,14 +89,91 @@ sapply(df_try, class)
 
 
 # change - to NA
-#df_try <- df_try[df_try == "-"] <- NA
+df_try[df_try == "-"] <- NA
+
 
 # Missing values
 
-miss = df_try[!complete.cases(df_try), ]
-is.na(df_try[1,30])
+sum(is.na(df_try))
 
 #install.packages("mice")
 library(mice)
 
-df_try[is.na(df_try)] <- mice(df_try, m=5, maxit = 50, method = 'pmm', seed = 500)
+imp <- mice(df_try, method = "norm.predict", m = 1)
+data_imp <- complete(imp)
+
+sum(is.na(data_imp))
+
+# PCA
+
+library(FactoMineR)
+library(factoextra)
+
+df_pca = data_imp[-1]
+
+sapply(df_pca, class)
+# get rid of the target variable for to prepare the PCA of the feature variables
+df_features = df_pca[-31]
+
+prcomp(df_features, scale.unit = TRUE, ncp = 5, graph = TRUE)
+
+res.pca = prcomp(df_features, graph = FALSE)
+
+print(res.pca)
+
+eig.val = get_eigenvalue(res.pca)
+eig.val
+
+
+fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 50))
+
+var = get_pca_var(res.pca)
+
+head(var$coord)
+head(var$cos2)
+head(var$contrib)
+head(var$coord, 4)
+
+fviz_pca_var(res.pca, col.var = "black")
+
+library("corrplot")
+corrplot(var$cos2, is.corr=FALSE)
+
+fviz_cos2(res.pca, choice = "var", axes = 1:4)
+
+# Color by cos2 values: quality on the factor map
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+)
+
+# Change the transparency by cos2 values
+fviz_pca_var(res.pca, alpha.var = "cos2")
+
+head(var$contrib, 4)
+
+library("corrplot")
+corrplot(var$contrib, is.corr=FALSE) 
+
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
+# Contributions of variables to PC3
+fviz_contrib(res.pca, choice = "var", axes = 3, top = 10)
+# Contributions of variables to PC4
+fviz_contrib(res.pca, choice = "var", axes = 4, top = 10)
+# Contributions of variables to PC5
+fviz_contrib(res.pca, choice = "var", axes = 5, top = 10)
+
+fviz_pca_ind(res.pca)
+
+fviz_pca_ind(res.pca, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+
+fviz_pca_ind(res.pca, pointsize = "cos2", 
+             pointshape = 21, fill = "#E7B800",
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
