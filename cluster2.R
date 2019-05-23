@@ -12,10 +12,10 @@ get_full_data<-function(data, sep=","){
   df <- read.csv(data, header = TRUE, sep)
 }
 
-df = get_full_data("Data/full_dataset.csv")
-df = df[(df$variable=="X2017"),]
+df = get_full_data("Data/pca_dataset.csv")
 
-df2 = df %>% select(4:15)
+
+df2 = df %>% select(-1,-7,-8)
 
 d<-dist(df2)
 
@@ -53,7 +53,7 @@ groups_ward <- cutree(fit_ward, k=3)
 
 df$groups_ward<-groups_ward
 
-table(df$geo.time,df$groups_ward)
+table(df$groups_ward,df$groups_ward)
 
-plot(fit_ward, labels=df$geo.time)
+plot(fit_ward, labels=df$County)
 rect.hclust(fit_ward, k=3, border="red")
