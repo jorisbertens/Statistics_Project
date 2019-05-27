@@ -10,6 +10,9 @@ library(zoo)
 library(FactoMineR)
 library(factoextra)
 library(corrgram)
+library(mlbench)
+library(FSelector)
+library(caret)
 
 
 # Load the Data
@@ -18,7 +21,6 @@ get_data<-function(data, sep=","){
 }
 
 df1 = get_data("Data/EconomicFreedomIndex.csv", sep=";")
-
 df2 = get_data("Data/HumanFreedomIndex.csv")
 df2 = df2[(df2$Year=="2016"),]
 
@@ -111,6 +113,8 @@ map(df_try, ~sum(is.na(.)))
 imp <- mice(df_try, method = "norm.predict", m = 1)
 data_imp1 <- complete(imp)
 
+#write.csv(data_imp1, file = "Data/clean_dataset.csv")
+
 # Method 2 of NA imputation = imputing by the mean
 ok <- sapply(df_try, is.numeric)
 data_imp2 = df_try
@@ -121,7 +125,27 @@ ok <- sapply(df_try, is.numeric)
 data_imp3 = df_try
 data_imp3[ok] <- lapply(data_imp3[ok], na.)
 
+# Feature Selection based using Caret
+
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+model <- train(Unemployment....~., data=data_imp1[-1], method="lm", preProcess="scale", trControl=control)
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+fit_glm = glm(Unemployment....~., data = data_imp1[-1])
+varImp(fit_glm)
+
+important_features = data_imp1 %>% select(Unemployment....,Trade.Freedom,Laws.and.Regulations.that.Influence.Media.Content,Labor.Freedom,Financial.Freedom,Establishing.and.Operating.Political.Parties,Fiscal.Freedom,Religion,Hiring.and.firing.regulations,Business.regulations,Labor.market.regulations,Domestic.Movement,Criminal.Justice,Business.Freedom,Women.s.Security...Safety,Foreign.Movement)
+
 # Feature selection based on correlation
+#df_scale <- as.data.frame( scale(data_imp2[-1]))
+
+#cor_tds <- cor(df_scale, df_scale, method = "pearson")
 
 cor_tds <- cor(data_imp1[-1], data_imp1[-1], method = "pearson")
 cor_df <- data.frame(cor=cor_tds[1:30,31], varn = names(cor_tds[1:30,31]))
@@ -146,7 +170,11 @@ normalize <- function(x) {
 df_scale <- as.data.frame( scale(filter_df[-1] ))
 df_norm <- as.data.frame(lapply(filter[-1], normalize))
 
+# either go with feature importance done by Alex or using the Correlation
+df_pca = important_features[-1]
 df_pca = filter_df[-1]
+#df_pca = data_imp1[-1]
+#df_pca = df_pca[-31]
 
 sapply(df_pca, class)
 # get rid of the target variable for to prepare the PCA of the feature variables
@@ -228,3 +256,18 @@ pca_df$Unemployment = filter_df$Unemployment....
 pca_df$County = data_imp1$Country.Name
 
 write.csv(pca_df, file = "Data/pca_dataset.csv")
+
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+model <- train(Unemployment....~., data=data_imp1[-1], method="lm", preProcess="scale", trControl=control)
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+fit_glm = glm(Unemployment....~., data = data_imp1[-1])
+varImp(fit_glm)
+
+important_features = data_imp1 %>% select(Trade.Freedom,Laws.and.Regulations.that.Influence.Media.Content,Labor.Freedom,Financial.Freedom,Establishing.and.Operating.Political.Parties,Fiscal.Freedom,Religion,Hiring.and.firing.regulations,Business.regulations,Labor.market.regulations,Domestic.Movement,Criminal.Justice,Business.Freedom,Women.s.Security...Safety,Foreign.Movement)

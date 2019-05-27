@@ -14,7 +14,7 @@ get_full_data<-function(data, sep=","){
 
 df = get_full_data("Data/pca_dataset.csv")
 
-
+df2 = df %>% select(-1,-2,-33)
 df2 = df %>% select(-1,-7,-8)
 
 d<-dist(df2)
