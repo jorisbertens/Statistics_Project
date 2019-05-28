@@ -7,12 +7,16 @@ library(cluster)
 library(gdata)
 library(dplyr)
 library(reshape2)
+library(RColorBrewer)
+library("dendextend")
+library(cluster)
+library(ape)
 
 get_full_data<-function(data, sep=","){
   df <- read.csv(data, header = TRUE, sep)
 }
 
-df = get_full_data("Data/pca_dataset.csv")
+df = get_full_data("Data/pca_df1.csv")
 
 df2 = df %>% select(-1,-2,-33)
 df2 = df %>% select(-1,-7,-8)
@@ -46,7 +50,11 @@ nb <- NbClust(df2, distance = "euclidean", min.nc = 2,
 
 fviz_nbclust(nb)
 
-fit_ward<-hclust(d,method="ward.D")
+df3 = column_to_rownames(df, var = "County")
+df3 = df3 %>% select(-1,-7)
+dst <- dist(df3)
+
+fit_ward<-hclust(dst,method="ward.D")
 plot(fit_ward)
 rect.hclust(fit_ward, k=3, border="red")
 groups_ward <- cutree(fit_ward, k=3)
@@ -57,5 +65,10 @@ table(df$groups_ward,df$groups_ward)
 
 
 plot(fit_ward, labels=df$County)
-dev.new(width=5, height=4)
 rect.hclust(fit_ward, k=3, border="red")
+
+cols <- brewer.pal(3, "Dark2")
+
+plot(as.phylo(fit_ward), type = "fan", tip.color=cols[groups_ward],label.offset = 1, cex = 0.9, font =1)
+
+

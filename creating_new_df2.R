@@ -143,6 +143,7 @@ important_features = data_imp1 %>% select(Unemployment....,Trade.Freedom,Laws.an
 #df_scale <- as.data.frame( scale(data_imp2[-1]))
 
 #cor_tds <- cor(df_scale, df_scale, method = "pearson")
+df_scale <- as.data.frame( scale(data_imp1 ))
 
 cor_tds <- cor(data_imp1[-1], data_imp1[-1], method = "pearson")
 cor_df <- data.frame(cor=cor_tds[1:30,31], varn = names(cor_tds[1:30,31]))
@@ -170,6 +171,7 @@ df_norm <- as.data.frame(lapply(filter[-1], normalize))
 # either go with feature importance done by Alex or using the Correlation
 #df_pca = important_features[-1]
 df_pca = filter_df[-1]
+#df_pca = df_scale
 #df_pca = data_imp1[-1]
 #df_pca = df_pca[-31]
 
@@ -177,7 +179,7 @@ sapply(df_pca, class)
 # get rid of the target variable for to prepare the PCA of the feature variables
 #df_features = df_pca[-31]
 
-prcomp(df_pca, scale.unit = TRUE, ncp = 5, graph = TRUE)
+prcomp(df_pca, scale.unit = FALSE, ncp = 5, graph = TRUE)
 
 res.pca = prcomp(df_pca, scale. = TRUE , graph = FALSE)
 
@@ -251,6 +253,8 @@ pca_df <- pca_df %>% select(PC1,PC2,PC3,PC4,PC5)
 
 pca_df$Unemployment = filter_df$Unemployment....
 pca_df$County = data_imp1$Country.Name
+
+write.csv(pca_df, file = "Data/pca_df1.csv")
 
 library(Hmisc)
 pca_df$bin_unempl = cut(pca_df$Unemployment, 6)
