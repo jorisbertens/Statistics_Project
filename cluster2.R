@@ -55,5 +55,7 @@ df$groups_ward<-groups_ward
 
 table(df$groups_ward,df$groups_ward)
 
+
 plot(fit_ward, labels=df$County)
+dev.new(width=5, height=4)
 rect.hclust(fit_ward, k=3, border="red")

@@ -100,9 +100,6 @@ sapply(df_try, class)
 # change - to NA
 df_try[df_try == "-"] <- NA
 
-# change 0 to NA
-#df_try[df_try==0]<-NA
-
 # Missing values
 sum(is.na(df_try))
 
@@ -171,7 +168,7 @@ df_scale <- as.data.frame( scale(filter_df[-1] ))
 df_norm <- as.data.frame(lapply(filter[-1], normalize))
 
 # either go with feature importance done by Alex or using the Correlation
-df_pca = important_features[-1]
+#df_pca = important_features[-1]
 df_pca = filter_df[-1]
 #df_pca = data_imp1[-1]
 #df_pca = df_pca[-31]
@@ -255,6 +252,9 @@ pca_df <- pca_df %>% select(PC1,PC2,PC3,PC4,PC5)
 pca_df$Unemployment = filter_df$Unemployment....
 pca_df$County = data_imp1$Country.Name
 
+library(Hmisc)
+pca_df$bin_unempl = cut(pca_df$Unemployment, 6)
+split(pca_df, cut2(pca_df$Unemployment, g=4))
 write.csv(pca_df, file = "Data/pca_dataset.csv")
 
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
