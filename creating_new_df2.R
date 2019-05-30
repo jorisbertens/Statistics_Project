@@ -13,6 +13,7 @@ library(corrgram)
 library(mlbench)
 library(FSelector)
 library(caret)
+library(olsrr)
 
 
 # Load the Data
@@ -41,8 +42,34 @@ df_join= df_join[-2]
 df_join= df_join[-2]
 df_join= df_join[-2]
 
+
 # delete columns that include "Chang"
 df_try = df_join[, -grep("Chang", colnames(df_join))]
+
+df_join[] <- lapply(df_join, gsub, pattern =".", replacement = "", fixed = TRUE)
+df_join[] <- lapply(df_join, gsub, pattern =",", replacement = ".", fixed = TRUE)
+df_join[] <- lapply(df_join, gsub, pattern ="$", replacement = "", fixed = TRUE)
+df_join[] <- lapply(df_join, gsub, pattern ="[-].*", replacement = "", fixed = TRUE)
+
+df_join <- df_join[, -c(37:40)]
+df_join <- df_join[, -27]
+
+df_join[df_join == "-"] <- NA
+df_join[df_join == ""] <- NA
+df_join[df_join == "N/"] <- NA
+df_join$Business.regulations <- gsub("[-].*","", df_join$Business.regulations)
+df_join$ECONOMIC.FREEDOM..Rank.<- gsub("[-].*","", df_join$ECONOMIC.FREEDOM..Rank.)
+df_join$Extra.payments.bribes.favoritism<- gsub("[-].*","", df_join$Extra.payments.bribes.favoritism)
+
+instanceconvert <- colnames(df_join[2:177])
+
+df_join[,instanceconvert] <-
+  lapply(df_join[,instanceconvert,drop=FALSE],as.numeric)
+
+sapply(df_join, class)
+#write.csv(df_join, file = "Data/df_join.csv")
+
+df_join2 <- df_join
 
 # manually selected columns
 cols = c(1, 4 ,6:11, 18, 19, 25, 48, 56, 57, 58, 66, 71, 77, 89, 95, 107, 109, 119, 128, 162, 157, 165, 169, 88, 55, 35, 23)
@@ -100,6 +127,7 @@ sapply(df_try, class)
 # change - to NA
 df_try[df_try == "-"] <- NA
 
+
 # Missing values
 sum(is.na(df_try))
 
@@ -110,6 +138,13 @@ map(df_try, ~sum(is.na(.)))
 imp <- mice(df_try, method = "norm.predict", m = 1)
 data_imp1 <- complete(imp)
 
+corrgram(data_imp1[-1],lower.panel=panel.cor,upper.panel=panel.pie, cor.method = "pearson")
+data_imp1 = data_imp1[-7]
+data_imp1 = data_imp1[-9]
+data_imp1 = data_imp1[-8]
+data_imp1 = data_imp1[-12]
+data_imp1 = data_imp1[-12]
+data_imp1 = data_imp1[-26]
 #write.csv(data_imp1, file = "Data/clean_dataset.csv")
 
 # Method 2 of NA imputation = imputing by the mean
@@ -146,7 +181,7 @@ important_features = data_imp1 %>% select(Unemployment....,Trade.Freedom,Laws.an
 df_scale <- as.data.frame( scale(data_imp1 ))
 
 cor_tds <- cor(data_imp1[-1], data_imp1[-1], method = "pearson")
-cor_df <- data.frame(cor=cor_tds[1:30,31], varn = names(cor_tds[1:30,31]))
+cor_df <- data.frame(cor=cor_tds[1:24,25], varn = names(cor_tds[1:24,25]))
 cor_df <- cor_df%>%mutate(cor_abs = abs(cor)) %>% arrange(desc(cor_abs))
 plot(cor_df$cor_abs)
 
@@ -170,16 +205,16 @@ df_norm <- as.data.frame(lapply(filter[-1], normalize))
 
 # either go with feature importance done by Alex or using the Correlation
 #df_pca = important_features[-1]
-df_pca = filter_df[-1]
+#df_pca = filter_df[-1]
 #df_pca = df_scale
-#df_pca = data_imp1[-1]
+df_pca = data_imp1[-1]
 #df_pca = df_pca[-31]
 
 sapply(df_pca, class)
 # get rid of the target variable for to prepare the PCA of the feature variables
 #df_features = df_pca[-31]
 
-prcomp(df_pca, scale.unit = FALSE, ncp = 5, graph = TRUE)
+prcomp(df_pca, scale.unit = TRUE, ncp = 5, graph = TRUE)
 
 res.pca = prcomp(df_pca, scale. = TRUE , graph = FALSE)
 
@@ -249,13 +284,187 @@ spca = summary(res.pca)
 plot(spca$importance[3,], type="l")
 
 pca_df <- data.frame(res.pca$x)
-pca_df <- pca_df %>% select(PC1,PC2,PC3,PC4,PC5)
+pca_df <- pca_df %>% select(PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10,PC11,PC12)
 
 pca_df$Unemployment = filter_df$Unemployment....
 pca_df$County = data_imp1$Country.Name
 
-write.csv(pca_df, file = "Data/pca_df1.csv")
+#write.csv(pca_df, file = "Data/pca.csv")
 
+### LM
+#data <- as.data.frame( scale(data_imp1[-1]))
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(data_imp1, method="number", col=col(200),  
+         type="upper", order="hclust", 
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col="black", tl.srt=45, #Text label color and rotation
+         # Combine with significance
+         p.mat = p.mat, sig.level = 0.01, insig = "blank", 
+         # hide correlation coefficient on the principal diagonal
+         diag=FALSE 
+)
+
+corrgram(data_imp1[-1],lower.panel=panel.cor,upper.panel=panel.pie, cor.method = "pearson")
+data_imp1[data_imp1$Unemployment.... == 0] <- 0.01
+model <- lm(Unemployment.... ~ Fiscal.Freedom+
+              Business.Freedom
+            +
+              Labor.Freedom
+            +
+              Monetary.Freedom
+            +
+              Trade.Freedom
+            +
+              Investment.Freedom
+            +
+              Financial.Freedom
+            +
+              Population..Millions.
+            +
+              GDP..Billions..PPP.
+            +
+              FDI.Inflow..Millions.
+            +
+              Conflicts
+            +
+              Security...Safety
+            +
+              Domestic.Movement
+            +
+              Foreign.Movement
+            +
+              Religion
+            +
+              Establishing.and.Operating.Political.Parties
+            +
+              Operating.Educational
+            +
+              Political.Pressures.and.Controls.on.Media.Content
+            +
+              Parental.Authority..In.Marriage
+            +
+              Transfers.and.subsidies
+            +
+              Government.enterprises.and.investment
+            +
+              Protection.of.property.rights
+            +
+              Money.growth
+            +
+              Labor.market.regulations
+            +
+              Hiring.and.firing.regulations
+            +
+              Starting.a..business
+            +
+              Business.regulations
+            +
+              Laws.and.Regulations.that.Influence.Media.Content
+            +
+              Women.s.Security...Safety
+            +
+              Criminal.Justice
+            , data = data_imp1)
+k <-ols_step_backward_p(model, prem=0.1)
+
+ols_step_best_subset(model)
+
+model <- lm(sqrt(Unemployment....) ~ Labor.Freedom+
+              Trade.Freedom
+            +
+              Financial.Freedom
+            +
+              Conflicts
+            +
+              Religion
+            +
+              Government.enterprises.and.investment
+            +
+              Money.growth
+            , data = data)
+
+model <- lm(Unemployment.... ~ Money.growth+
+              Laws.and.Regulations.that.Influence.Media.Content
+            +
+              Parental.Authority..In.Marriage
+            +
+              Operating.Educational
+            +
+              Religion
+            +
+              FDI.Inflow..Millions.
+            +
+              Government.enterprises.and.investment
+            +
+              Population..Millions.
+            +
+              Monetary.Freedom
+            +
+              GDP..Billions..PPP.
+            +
+              Establishing.and.Operating.Political.Parties
+            +
+              Protection.of.property.rights
+            , data = data)
+
+lm_pca = get_data("Data/pca_df1.csv")
+lm_pca = lm_pca %>% select(PC1,PC2,PC3,PC4,PC5, Unemployment)
+lm_pca = pca_df %>% select(PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10,PC11,PC12, Unemployment)
+model <- lm(Unemployment ~ PC1+
+              PC2
+            +
+              PC3
+            +
+              PC4
+            +
+              PC5
+            +
+              PC6
+            +
+              PC7
+            +
+              PC8
+            +
+              PC9
+            +
+              PC10
+            +
+              PC11
+            +
+              PC12
+            , data = lm_pca)
+
+
+model <- lm(Unemployment.... ~ FDI.Inflow..Millions.
+            +
+              Establishing.and.Operating.Political.Parties
+            +
+              Operating.Educational
+            +
+              Government.enterprises.and.investment
+            +
+              Protection.of.property.rights
+            +
+              Money.growth
+            +
+              Laws.and.Regulations.that.Influence.Media.Content
+            +
+              Parental.Authority..In.Marriage
+            + 
+              Monetary.Freedom
+            , data = data_imp1)
+k <-ols_step_backward_p(model, prem=0.1)
+
+ols_step_best_subset(model)
+
+
+library(car)
+library(plyr)
+vif(model)
+k <-ols_step_backward_p(model, prem=0.1)
+
+colnames(data_imp1)
 library(Hmisc)
 pca_df$bin_unempl = cut(pca_df$Unemployment, 6)
 split(pca_df, cut2(pca_df$Unemployment, g=4))
