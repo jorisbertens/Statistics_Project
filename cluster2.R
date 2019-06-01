@@ -21,10 +21,11 @@ get_full_data<-function(data, sep=","){
 
 #df = get_full_data("Data/all_var_df.csv")
 df = get_full_data("Data/pca_whole3.csv")
+df = get_full_data("Data/pca_whole4.csv")
 
 
 #df2 = df %>% select(-1,-2,-143)
-df2 = df %>% select(-1,-7,-8)
+df2 = df %>% select(-1,-10,-11)
 
 d<-dist(df2)
 
