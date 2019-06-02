@@ -1,0 +1,50 @@
+Methodology
+* Data preparation (missing values imputation, outlier detection and treatment)
+* Dimension Reduction (PCA)
+* Hierarchical Clustering on Principal Components
+* Linear Regression
+
+Objectives
+Heavily reduce dimensionality to increase the interpretation
+Discover the factors that influence the unemployment rates in countries
+Find out about the similarities between different countries by means of clustering
+
+
+Unemployment Rates worldwide
+
+What can be seen in the worldmap is that the unemployment rates around the world are not necessarily impacted by their geographical area. Countries with the highest unemployment rate include: ..... On the other side are countries with the lowest unemployment rate namely: ....
+
+PCA:
+
+As was dealt with a high number of dimensions (141 variables) there was chosen to filter on those variables that met the threshold correlation of 0.15 to the unemployment rate. In this way very insignificant variables do not create noise when applyinh the PCA. By this the interpretability of the PCA increased. After this filter only 20 variables were maintained (the plot and the threshold line can be seen on the right).
+
+Hierarchical Clustering on Principal Components:
+
+Based on Cirle dendogram together with the results of the Elbow and Silhouette methods the final decision was made to use 5 clusters. This seems to be the optimal amount of cluster which indicates which countries do have similarities between each other based on the principle components derived from the PCA. There was chosen to use the first 8 principal components as this amount had a cumulative variance of 78%. 
+
+When the clusters are plotted on a worldmap, what can be seen is ...
+
+Definition of the clusters:
+
+
+Multiple Regression
+
+For the Multiple Regression the 20 filtered variables with a correlation to the target of >0.15 were used. 
+
+To do a valid multiple regression several assumptions had to be met. 
+	- The target variable follows a normal distribution
+		-> Checked by using the QQ-plot. 
+	- The relationship between the dependent variable and the independent variables must be linear. 
+	- There can be no multicollinearity
+		-> Reduced by making use of the Variance Inflation Factors (VIF) values.
+	- The variance of error terms are similar across the values of the independent variables (Homoscedasticity)
+		-> Checked by using the residual plot. What can be seen is that it is not perfectly Homoscedastic and that the points tend to be not fully equally distributed across all values of the independnt variables.
+
+To fit the best model, backward selection was applied using a p-value of 0.05. This resulted in the selection of the variables that yield the best results having a p-value<0.05. The final independent variables in the model after countering multicollinearity and applying backward selection are mostly economic indicators, such as Government Expenditure, GDP & Trade Freedom as well as social factors like Violent Conflicts & Human Freedom.
+
+Results of the Multiple Regression
+
+The model achieved an R2 of 0.32
+This indicates that a prediction of the Unemployment Rate by using the independent variables might not yield accurate results and that the independent variables cannot be used to predict Unemployment Rates.
+
+
