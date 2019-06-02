@@ -196,7 +196,7 @@ library(ggplot2)
 
 ### Residual PLOT
 reg.res = resid(model) 
-plot(df_regression$Unemployment_log, reg.res, main = "Residual Plot", xlab = "Fitted Values", ylab = "Residuals")
+plot(df_regression$Unemployment_log, reg.res, main = "Residual Plot", xlab = "Fitted Values", ylab = "Residuals",  pch = 21, col="darkgreen", bg = "darkgreen")
 abline(0, 0)
 
 df_regression <- as.data.frame( scale(df_regression[-1] ))
@@ -204,7 +204,7 @@ df_regression$Unemployment_exp <- exp(df_regression$Unemployment)
 
 ### QQ PLOT
 qqnorm(df_regression$Unemployment_log,
-       ylab="Sample Quantiles for Turbidity")
+       ylab="Sample Quantiles for Turbidity", pch = 21, col="darkgreen", bg = "darkgreen")
 qqline(df_regression$Unemployment_log,
        col="red")
 
@@ -220,7 +220,7 @@ eig.val = get_eigenvalue(res.pca)
 eig.val
 
 
-fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 30))
+fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 30), barcolor ="darkgreen", barfill="darkgreen")
 
 var = get_pca_var(res.pca)
 
@@ -232,7 +232,8 @@ head(var$coord, 4)
 fviz_pca_var(res.pca, col.var = "black")
 
 library("corrplot")
-corrplot(var$cos2, is.corr=FALSE)
+colpal=colorRampPalette(c("white", "darkgreen"))(20)
+corrplot(var$cos2, is.corr=FALSE, col=colpal, tl.col = "black")
 
 fviz_cos2(res.pca, choice = "var", axes = 1,)
 
@@ -260,7 +261,8 @@ fviz_pca_ind(res.pca, pointsize = "cos2",
 head(var$contrib, 4)
 
 library("corrplot")
-corrplot(var$contrib, is.corr=FALSE) 
+colpal=colorRampPalette(c("white", "darkgreen"))(20)
+corrplot(var$contrib, is.corr=FALSE, col=colpal, tl.col = "black") 
 
 # Contributions of variables to PC1
 fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
@@ -279,6 +281,6 @@ pca_df <- pca_df %>% select(PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8)
 pca_df$Unemployment = filter_df$Unemployment
 pca_df$County = data_imp1$Country.Name
 
-write.csv(pca_df, file = "Data/pca_whole4.csv")
+#write.csv(pca_df, file = "Data/pca_whole4.csv")
 #write.csv(data_imp1, file = "Data/all_var_df.csv")
 
