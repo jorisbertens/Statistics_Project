@@ -20,7 +20,7 @@ get_full_data<-function(data, sep=","){
 #df = get_full_data("Data/clean_dataset.csv")
 
 #df = get_full_data("Data/all_var_df.csv")
-df = get_full_data("Data/pca_whole3.csv")
+#df = get_full_data("Data/pca_whole3.csv")
 df = get_full_data("Data/pca_whole4.csv")
 
 
